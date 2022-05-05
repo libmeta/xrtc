@@ -15,5 +15,3 @@ endif()
 
 set (HAVE_OPENSSL 1)
 include_directories (${OPENSSL_INCLUDE_DIR})
-
-#target_link_libraries (native-lib  ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY})
