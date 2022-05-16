@@ -1,8 +1,13 @@
 add_library(WebRTCLib STATIC)
+target_compile_options(WebRTCLib PRIVATE -std=c++14)
 
 target_sources(WebRTCLib PRIVATE
     pch.cpp
-    pch.hpp)
+    pch.hpp
+#    video_track_source.cpp
+#    video_track_source.hpp
+
+)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     target_compile_options(WebRTCLib PUBLIC
