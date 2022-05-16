@@ -13,7 +13,7 @@
 
 namespace xrtc {
 
-class SrtCC {
+class SrtCongestionCtrl {
     enum {
         STATE_INCR = 0x01,
         STATE_DECR = 0x02,
@@ -31,9 +31,9 @@ class SrtCC {
     static constexpr int RTT_MIN = 35;
 
 public:
-    explicit SrtCC(SRTSOCKET sock);
+    explicit SrtCongestionCtrl(SRTSOCKET sock);
 
-    ~SrtCC();
+    ~SrtCongestionCtrl();
 
     bool updateVideoEncodeBitate(int64_t& current_vencode_bitrate, const int64_t video_stream_bitrate);
 

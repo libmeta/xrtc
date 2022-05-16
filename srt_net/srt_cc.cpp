@@ -2,16 +2,16 @@
 
 namespace xrtc {
 
-SrtCC::SrtCC(SRTSOCKET sock)
+SrtCongestionCtrl::SrtCongestionCtrl(SRTSOCKET sock)
     : sock(sock)
 {
 }
 
-SrtCC::~SrtCC()
+SrtCongestionCtrl::~SrtCongestionCtrl()
 {
 }
 
-bool SrtCC::updateVideoEncodeBitate(int64_t& current_vencode_bitrate, const int64_t video_stream_bitrate)
+bool SrtCongestionCtrl::updateVideoEncodeBitate(int64_t& current_vencode_bitrate, const int64_t video_stream_bitrate)
 {
     static constexpr double INCR_RATION = 1.08;
     static constexpr double DECR_RATION = 0.85;
@@ -42,7 +42,7 @@ bool SrtCC::updateVideoEncodeBitate(int64_t& current_vencode_bitrate, const int6
     return false;
 }
 
-void SrtCC::congestionCtrl()
+void SrtCongestionCtrl::congestionCtrl()
 {
     if (srt_congestion_ctrl_task_.doByTimeAndCount([this] {
             SRT_TRACEBSTATS perf;
@@ -66,12 +66,12 @@ void SrtCC::congestionCtrl()
     }
 }
 
-SRT_SOCKSTATUS SrtCC::getSockstate() const
+SRT_SOCKSTATUS SrtCongestionCtrl::getSockstate() const
 {
     return srt_getsockstate(sock);
 }
 
-bool SrtCC::getSndBuffer(size_t* bytes, size_t* blocks)
+bool SrtCongestionCtrl::getSndBuffer(size_t* bytes, size_t* blocks)
 {
     const int st = srt_getsndbuffer(sock, blocks, bytes);
     if (st == SRT_ERROR) {
@@ -81,7 +81,7 @@ bool SrtCC::getSndBuffer(size_t* bytes, size_t* blocks)
     return true;
 }
 
-void SrtCC::updateRTT(int rtt)
+void SrtCongestionCtrl::updateRTT(int rtt)
 {
     rtt_array_.push_back(rtt = std::max(rtt, RTT_MIN));
     if ((rtt_ready_ = rtt_array_.size() >= RTT_LIST_MAX)) {
@@ -91,7 +91,7 @@ void SrtCC::updateRTT(int rtt)
     }
 }
 
-void SrtCC::updateMaxBW(uint64_t maxbw)
+void SrtCongestionCtrl::updateMaxBW(uint64_t maxbw)
 {
     bw_array_.push_back(maxbw);
     if ((bw_ready_ = bw_array_.size() >= BW_LIST_MAX)) {
@@ -102,7 +102,7 @@ void SrtCC::updateMaxBW(uint64_t maxbw)
     }
 }
 
-int SrtCC::srtBitrateGetState(int inflight)
+int SrtCongestionCtrl::srtBitrateGetState(int inflight)
 {
     static constexpr int64_t INCR = 1316 * 8 * 3;
     static constexpr int64_t DECR = -1316 * 8 * 6;
