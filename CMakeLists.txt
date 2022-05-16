@@ -9,6 +9,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(InitSystemName)
+add_subdirectory(base)
 add_subdirectory(3rd)
 add_subdirectory(logger)
 add_subdirectory(webrtc)

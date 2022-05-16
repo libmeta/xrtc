@@ -6,6 +6,8 @@
 
 #include <srt.h>
 
+namespace xrtc {
+
 class SrtNet {
 public:
     explicit SrtNet();
@@ -26,6 +28,8 @@ private:
     void setSockOptionsPre();
 
 private:
-    std::optional<int> srtNetSocket = std::nullopt;
-    std::optional<int> epollid = std::nullopt;
+    std::optional<int> srt_net_socket_ = std::nullopt;
+    std::optional<int> epollid_ = std::nullopt;
 };
+
+}

@@ -1,4 +1,5 @@
 #include "srt_net.hpp"
+namespace xrtc {
 
 SrtNet::SrtNet()
 {
@@ -14,8 +15,8 @@ bool SrtNet::startOrUpdate(const std::string& ip, uint16_t port)
     stop();
 
     srt_startup();
-    srtNetSocket = srt_create_socket();
-    if (srtNetSocket < 0) {
+    srt_net_socket_ = srt_create_socket();
+    if (srt_net_socket_.value() < 0) {
         return false;
     }
 
@@ -28,18 +29,18 @@ bool SrtNet::startOrUpdate(const std::string& ip, uint16_t port)
         return false;
     }
 
-    epollid = srt_epoll_create();
-    if (epollid.value() == -1) {
+    epollid_ = srt_epoll_create();
+    if (epollid_.value() == -1) {
         return false;
     }
 
     // When a caller is connected, a write-readiness event is triggered.
     const int modes = SRT_EPOLL_OUT | SRT_EPOLL_ERR;
-    if (SRT_ERROR == srt_epoll_add_usock(epollid.value(), srtNetSocket.value(), &modes)) {
+    if (SRT_ERROR == srt_epoll_add_usock(epollid_.value(), srt_net_socket_.value(), &modes)) {
         return false;
     }
 
-    const auto srt_connect_st = srt_connect(srtNetSocket.value(), (struct sockaddr*)&sa, sizeof sa);
+    const auto srt_connect_st = srt_connect(srt_net_socket_.value(), (struct sockaddr*)&sa, sizeof sa);
     if (srt_connect_st == SRT_ERROR) {
         return false;
     }
@@ -51,18 +52,18 @@ bool SrtNet::startOrUpdate(const std::string& ip, uint16_t port)
     SRTSOCKET rready;
     int wlen = 1;
     SRTSOCKET wready;
-    if (srt_epoll_wait(epollid.value(), &rready, &rlen, &wready, &wlen, -1, 0, 0, 0, 0) == -1) {
+    if (srt_epoll_wait(epollid_.value(), &rready, &rlen, &wready, &wlen, -1, 0, 0, 0, 0) == -1) {
         return false;
     }
 
-    const SRT_SOCKSTATUS state = srt_getsockstate(srtNetSocket.value());
+    const SRT_SOCKSTATUS state = srt_getsockstate(srt_net_socket_.value());
     if (state != SRTS_CONNECTED || rlen > 0) // rlen > 0 - an error notification
     {
         //            fprintf(stderr, "srt_epoll_wait: reject reason %s\n", srt_rejectreason_str(srt_getrejectreason(rready)));
         return false;
     }
 
-    if (wlen != 1 || wready != srtNetSocket.value()) {
+    if (wlen != 1 || wready != srt_net_socket_.value()) {
         return false;
     }
 
@@ -71,9 +72,9 @@ bool SrtNet::startOrUpdate(const std::string& ip, uint16_t port)
 
 void SrtNet::stop()
 {
-    if (srtNetSocket.has_value()) {
-        const auto srt_close_st = srt_close(srtNetSocket.value());
-        srtNetSocket = std::nullopt;
+    if (srt_net_socket_.has_value()) {
+        const auto srt_close_st = srt_close(srt_net_socket_.value());
+        srt_net_socket_ = std::nullopt;
         if (srt_close_st == SRT_ERROR) {
             return;
         }
@@ -90,7 +91,7 @@ std::optional<bool> SrtNet::sendData(const uint8_t* data, int len, SRT_MSGCTRL* 
     int wlen = 1;
 
     const int timeout_ms = 0; // ms
-    const auto srt_epoll_wait_res = srt_epoll_wait(epollid.value(), &rready, &rlen, &wready, &wlen, timeout_ms, 0, 0, 0, 0);
+    const auto srt_epoll_wait_res = srt_epoll_wait(epollid_.value(), &rready, &rlen, &wready, &wlen, timeout_ms, 0, 0, 0, 0);
     if (srt_epoll_wait_res < 0) {
         if (srt_getlasterror(nullptr) == SRT_ETIMEOUT) {
             return std::nullopt;
@@ -99,7 +100,7 @@ std::optional<bool> SrtNet::sendData(const uint8_t* data, int len, SRT_MSGCTRL* 
         return false;
     }
 
-    const auto srt_sendmsg2_st = srt_sendmsg2(srtNetSocket.value(), (const char*)(data), len, msg_ctrl);
+    const auto srt_sendmsg2_st = srt_sendmsg2(srt_net_socket_.value(), (const char*)(data), len, msg_ctrl);
     if (srt_sendmsg2_st < 0) {
         return false;
     }
@@ -114,7 +115,7 @@ int SrtNet::getLastError() const
 
 bool SrtNet::setSockOption(SRT_SOCKOPT optname, const void* optval, int optlen)
 {
-    if (srt_setsockopt(srtNetSocket.value(), 0, optname, optval, optlen) < 0) {
+    if (srt_setsockopt(srt_net_socket_.value(), 0, optname, optval, optlen) < 0) {
         //        fprintf(stderr, "failed to set option %s on socket: %s\n", optnamestr, srt_getlasterror_str());
         return false;
     }
@@ -136,4 +137,6 @@ void SrtNet::setSockOptionsPre()
 
     const int payload_size = 188 * 7;
     setSockOption(SRTO_PAYLOADSIZE, &payload_size, sizeof(payload_size));
+}
+
 }
