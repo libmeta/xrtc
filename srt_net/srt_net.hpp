@@ -20,7 +20,7 @@ public:
 
     std::optional<bool> sendData(const uint8_t* data, int len, SRT_MSGCTRL* msg_ctrl = nullptr);
 
-    int getLastError() const;
+    static int getLastError();
 
     bool setSockOption(SRT_SOCKOPT optname, const void* optval, int optlen);
 

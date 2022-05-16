@@ -108,7 +108,7 @@ std::optional<bool> SrtNet::sendData(const uint8_t* data, int len, SRT_MSGCTRL* 
     return true;
 }
 
-int SrtNet::getLastError() const
+int SrtNet::getLastError()
 {
     return srt_getlasterror(nullptr);
 }
