@@ -282,7 +282,7 @@ int test_srt_net_main()
 
     gSRTNetServer.stop();
     std::this_thread::sleep_for(std::chrono::seconds(2));
-    xlogi("topClient 1");
+    xlogi("stopClient 1");
     gSRTNetClient1.stop();
     xlogi("stopClient 2");
     gSRTNetClient2.stop();
