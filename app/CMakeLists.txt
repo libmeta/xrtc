@@ -15,10 +15,10 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
-        main.cpp
-        dialog.cpp
-        dialog.hpp
-        dialog.ui
+    main.cpp
+    dialog.cpp
+    dialog.hpp
+    dialog.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -35,13 +35,13 @@ else()
         add_library(app SHARED
             ${PROJECT_SOURCES}
         )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-    else()
-        add_executable(app
-            ${PROJECT_SOURCES}
-        )
-    endif()
+    # Define properties for Android with Qt 5 after find_package() calls as:
+    #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+else()
+    add_executable(app
+        ${PROJECT_SOURCES}
+    )
+endif()
 endif()
 
 target_link_libraries(app PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)

@@ -1,6 +1,8 @@
 #include "srt_net.hpp"
 #include "logger/logger.hpp"
 
+namespace xrtc {
+
 SRTNet::SRTNet()
 {
     xlogi("SRTNet constructed");
@@ -493,4 +495,6 @@ bool SRTNet::getStatistics(SRT_TRACEBSTATS* currentStats, int clear, int instant
         return false;
     }
     return true;
+}
+
 }

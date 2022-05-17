@@ -2,6 +2,8 @@
 
 #include <QDialog>
 
+#include <thread>
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class Dialog;
@@ -17,4 +19,6 @@ public:
 
 private:
     Ui::Dialog* ui;
+
+    std::thread test_srt_net_thread;
 };

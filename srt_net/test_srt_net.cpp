@@ -1,8 +1,12 @@
-#include "test_srt_net.hpp"
-
-#include "srt_net.hpp"
 #include <thread>
 #include <utility>
+
+#include "srt_net.hpp"
+#include "test_srt_net.hpp"
+
+#include "logger/logger.hpp"
+
+namespace xrtc {
 
 SRTNet gSRTNetServer;
 SRTNet gSRTNetClient1;
@@ -21,8 +25,9 @@ public:
 
     ~MyClass()
     {
-        if (mClientSocket)
-            std::cout << "Client -> " << mClientSocket << " disconnected. (From Object)" << std::endl;
+        if (mClientSocket) {
+            xlogi("Client -> {} disconnected. (From Object)", mClientSocket);
+        }
     };
     int mTest = 0;
     int mCounter = 0;
@@ -59,8 +64,7 @@ validateConnection(struct sockaddr& rSin, SRTSOCKET lNewSocket, std::shared_ptr<
     if (rSin.sa_family == AF_INET) {
         struct sockaddr_in* lpInConnectionV4 = (struct sockaddr_in*)&rSin;
         auto* lIp = (unsigned char*)&lpInConnectionV4->sin_addr.s_addr;
-        std::cout << "Connecting IPv4: " << unsigned(lIp[0]) << "." << unsigned(lIp[1]) << "." << unsigned(lIp[2]) << "."
-                  << unsigned(lIp[3]) << std::endl;
+        xlogi("Connecting IPv4: {}.{}.{}.{}", unsigned(lIp[0]), unsigned(lIp[1]), unsigned(lIp[2]), unsigned(lIp[3]));
 
         // Do we want to accept this connection?
         // return nullptr;
@@ -68,7 +72,7 @@ validateConnection(struct sockaddr& rSin, SRTSOCKET lNewSocket, std::shared_ptr<
     } else if (rSin.sa_family == AF_INET6) {
         struct sockaddr_in6* pInConnectionV6 = (struct sockaddr_in6*)&rSin;
         inet_ntop(AF_INET6, &pInConnectionV6->sin6_addr, lAddrIPv6, INET6_ADDRSTRLEN);
-        printf("Connecting IPv6: %s\n", lAddrIPv6);
+        xlogi("Connecting IPv6: {}", lAddrIPv6);
 
         // Do we want to accept this connection?
         // return nullptr;
@@ -87,7 +91,6 @@ validateConnection(struct sockaddr& rSin, SRTSOCKET lNewSocket, std::shared_ptr<
 bool handleData(std::unique_ptr<std::vector<uint8_t>>& rContent, SRT_MSGCTRL& rMsgCtrl, std::shared_ptr<SRTNet::NetworkConnection>& rpCtx,
     SRTSOCKET lClientHandle)
 {
-
     // Try catch?
     auto lpMyClass = std::any_cast<std::shared_ptr<MyClass>&>(rpCtx->mObject);
 
@@ -111,15 +114,14 @@ bool handleData(std::unique_ptr<std::vector<uint8_t>>& rContent, SRT_MSGCTRL& rM
         }
     }
 
-    // std::cout << "Got ->" << content->size() << " " << std::endl;
-
+    xlogi("Got -> {}", rContent->size());
     return true;
 };
 
 // Client disconnect callback.
 void clientDisconnect(std::shared_ptr<SRTNet::NetworkConnection>& pCtx, SRTSOCKET lClientHandle)
 {
-    std::cout << "Client -> " << lClientHandle << " disconnected. (From callback)" << std::endl;
+    xlogi("Client ->{} disconnected. (From callback)", lClientHandle);
 }
 
 //**********************************
@@ -131,30 +133,31 @@ void handleDataClient(std::unique_ptr<std::vector<uint8_t>>& rContent, SRT_MSGCT
     std::shared_ptr<SRTNet::NetworkConnection>& rpCtx, SRTSOCKET lServerHandle)
 {
 
-    std::cout << "Got data ->" << rContent->size() << std::endl;
-
+    xlogi("Got data -> {}", rContent->size());
     // Try catch?
     auto lpMyClass = std::any_cast<std::shared_ptr<MyClass>&>(rpCtx->mObject);
 
     int lPacketSize = rContent->size();
     if (lpMyClass->mTest == 1) {
-        std::cout << "Got client1 data ->" << lPacketSize << std::endl;
+        xlogi("Got client1 data -> {}", lPacketSize);
         lpMyClass->mCounter++;
         if (lpMyClass->mCounter == 1) { // kill this connection after 1 packet from server
             gCloseConnection1 = true;
         }
         return;
     }
+
     if (lpMyClass->mTest == 2) {
-        std::cout << "Got client2 data ->" << lPacketSize << std::endl;
+        xlogi("Got client2 data -> {}", lPacketSize);
         return;
     }
+
     return;
 };
 
 int test_srt_net_main()
 {
-    std::cout << "SRT wrapper start." << std::endl;
+    xlogi("SRT test start.");
     srt_startup();
 
     bool lRunOnce = true;
@@ -180,7 +183,7 @@ int test_srt_net_main()
      * mtu: max 1456
      */
     if (!gSRTNetServer.startServer("0.0.0.0", 8000, 16, 1000, 100, 1456, "Th1$_is_4_0pt10N4L_P$k", lConn1)) {
-        std::cout << "SRT Server failed to start." << std::endl;
+        xlogi("SRT Server failed to start.");
         return EXIT_FAILURE;
     }
 
@@ -195,7 +198,7 @@ int test_srt_net_main()
         std::placeholders::_3, std::placeholders::_4);
     if (!gSRTNetClient1.startClient("127.0.0.1", 8000, 16, 1000, 100, lClient1Connection, 1456,
             "Th1$_is_4_0pt10N4L_P$k")) {
-        std::cout << "SRT client1 failed starting." << std::endl;
+        xlogi("SRT client1 failed starting.");
         return EXIT_FAILURE;
     }
 
@@ -207,7 +210,7 @@ int test_srt_net_main()
         std::placeholders::_3, std::placeholders::_4);
     if (!gSRTNetClient2.startClient("127.0.0.1", 8000, 16, 1000, 100, lClient2Connection, 1456,
             "Th1$_is_4_0pt10N4L_P$k")) {
-        std::cout << "SRT client2 failed starting." << std::endl;
+        xlogi("SRT client2 failed starting.");
         return EXIT_FAILURE;
     }
 
@@ -218,7 +221,7 @@ int test_srt_net_main()
     //  clients = nullptr;
 
     gSRTNetServer.getActiveClients([](std::map<SRTSOCKET, std::shared_ptr<SRTNet::NetworkConnection>>& clientList) {
-        std::cout << "The server got " << clientList.size() << " client(s)." << std::endl;
+        xlogi("The server got  {} client(s).", clientList.size());
     });
 
     // Send 300 packets with 10 milliseconds spacing. Packets are 1000 bytes long
@@ -229,7 +232,7 @@ int test_srt_net_main()
     std::vector<uint8_t> lBuffer2(1000);
     std::fill(lBuffer2.begin(), lBuffer2.end(), 2);
 
-    std::cout << "SRT Start send." << std::endl;
+    xlogi("SRT Start send.");
 
     bool lStillSendClient1Data = true;
 
@@ -253,9 +256,9 @@ int test_srt_net_main()
         }
     }
 
-    std::cout << "Done sending" << std::endl;
+    xlogi("Done sending");
     std::this_thread::sleep_for(std::chrono::seconds(4));
-    std::cout << "Get statistics." << std::endl;
+    xlogi("Get statistics.");
 
     // Get statistics like this ->
     /*
@@ -272,22 +275,25 @@ int test_srt_net_main()
     // mySRTNetServer.getStatistics(&currentServerStats,SRTNetClearStats::yes,SRTNetInstant::no);
 
     gSRTNetServer.getActiveClients([](std::map<SRTSOCKET, std::shared_ptr<SRTNet::NetworkConnection>>& rClientList) {
-        std::cout << "The server got " << rClientList.size() << " clients." << std::endl;
+        xlogi("The server got {} clients", rClientList.size());
     });
 
-    std::cout << "SRT garbage collect" << std::endl;
+    xlogi("SRT garbage collect");
+
     gSRTNetServer.stop();
     std::this_thread::sleep_for(std::chrono::seconds(2));
-    std::cout << "stopClient 1" << std::endl;
+    xlogi("topClient 1");
     gSRTNetClient1.stop();
-    std::cout << "stopClient 2" << std::endl;
+    xlogi("stopClient 2");
     gSRTNetClient2.stop();
 
     gSRTNetServer.getActiveClients([](std::map<SRTSOCKET, std::shared_ptr<SRTNet::NetworkConnection>>& clientList) {
-        std::cout << "The server got " << clientList.size() << " clients." << std::endl;
+        xlogi("The server got  {} clients.", clientList.size());
     });
 
     srt_cleanup();
-    std::cout << "SRT wrapper did end." << std::endl;
+    xlogi("SRT test did end.");
     return EXIT_SUCCESS;
+}
+
 }

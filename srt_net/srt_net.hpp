@@ -26,6 +26,8 @@
 
 #endif
 
+namespace xrtc {
+
 constexpr int MAX_WORKERS = 20; // Max number of connections to deal with each epoll
 
 namespace SRTNetClearStats {
@@ -199,3 +201,5 @@ private:
     std::shared_ptr<NetworkConnection> mClientContext = nullptr;
     std::shared_ptr<NetworkConnection> mConnectionContext = nullptr;
 };
+
+}
