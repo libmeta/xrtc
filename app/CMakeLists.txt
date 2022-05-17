@@ -26,9 +26,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
+
 # Define target properties for Android with Qt 6 as:
-#    set_property(TARGET app APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
+set_property(TARGET app APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android)
 # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 else()
     if(ANDROID)
@@ -61,3 +61,4 @@ set_target_properties(app PROPERTIES
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(app)
 endif()
+
