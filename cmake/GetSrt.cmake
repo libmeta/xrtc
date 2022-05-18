@@ -7,6 +7,13 @@ set (SRT_SRC_COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/srt/common)
 #set (SRT_SRC_TOOLS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/srt/tools)
 #set (SRT_SRC_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/srt/test)
 include_directories(${SRT_SRC_COMMON_DIR} ${SRT_SRC_SRTCORE_DIR} ${SRT_SRC_HAICRYPT_DIR})
-set(LIB_SRT_INCLUDE ${SRT_SRC_COMMON_DIR} ${SRT_SRC_SRTCORE_DIR} ${SRT_SRC_HAICRYPT_DIR} ${CMAKE_CURRENT_BINARY_DIR}/srt)
-add_library(srt::srt_static_lib ALIAS ${TARGET_srt}_static)
+
+target_include_directories(${TARGET_srt}_static INTERFACE
+    ${SRT_SRC_COMMON_DIR}
+    ${SRT_SRC_SRTCORE_DIR}
+    ${SRT_SRC_HAICRYPT_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/srt
+)
+
+add_library(3rd::srt ALIAS ${TARGET_srt}_static)
 

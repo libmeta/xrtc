@@ -6,7 +6,6 @@
 namespace xrtc {
 XRTC::XRTC()
 {
-    SRTNet();
 }
 
 }

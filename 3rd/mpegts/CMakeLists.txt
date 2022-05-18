@@ -11,4 +11,6 @@ target_sources(MpegtsLib PRIVATE
     ${CPP_SOURCES}
 )
 
-set(LIB_MPEGTS_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR})
+#include_directories()
+#set(3rd::mpegts_include ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(3rd::mpegts ALIAS MpegtsLib)

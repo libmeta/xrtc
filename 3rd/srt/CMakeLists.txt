@@ -124,14 +124,14 @@ endif()
 # options
 option(CYGWIN_USE_POSIX "Should the POSIX API be used for cygwin. Ignored if the system isn't cygwin." OFF)
 option(ENABLE_CXX11 "Should the c++11 parts (srt-live-transmit) be enabled" ON)
-option(ENABLE_APPS "Should the Support Applications be Built?" ON)
+option(ENABLE_APPS "Should the Support Applications be Built?" OFF) #ON
 option(ENABLE_EXPERIMENTAL_BONDING "Should the EXPERIMENTAL bonding functionality be enabled?" OFF)
 option(ENABLE_TESTING "Should the Developer Test Applications be Built?" OFF)
 option(ENABLE_PROFILE "Should instrument the code for profiling. Ignored for non-GNU compiler." $ENV{HAI_BUILD_PROFILE})
-option(ENABLE_LOGGING "Should logging be enabled" ON)
+option(ENABLE_LOGGING "Should logging be enabled" OFF) #ON
 option(ENABLE_HEAVY_LOGGING "Should heavy debug logging be enabled" ${ENABLE_HEAVY_LOGGING_DEFAULT})
 option(ENABLE_HAICRYPT_LOGGING "Should logging in haicrypt be enabled" 0)
-option(ENABLE_SHARED "Should libsrt be built as a shared library" ON)
+option(ENABLE_SHARED "Should libsrt be built as a shared library" OFF) #ON
 option(ENABLE_STATIC "Should libsrt be built as a static library" ON)
 option(ENABLE_RELATIVE_LIBPATH "Should application contain relative library paths, like ../lib" OFF)
 option(ENABLE_GETNAMEINFO "In-logs sockaddr-to-string should do rev-dns" OFF)
