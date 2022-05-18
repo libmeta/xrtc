@@ -15,3 +15,9 @@ srt:        https://github.com/Haivision/srt/archive/refs/tags/v1.4.4.tar.gz
 spdlog:     https://github.com/gabime/spdlog/archive/refs/tags/v1.10.0.tar.gz
 
 sigslot:    https://github.com/palacaze/sigslot/archive/refs/tags/v1.2.1.tar.gz
+
+jmi:        https://github.com/wang-bin/JMI.git
+
+
+
+

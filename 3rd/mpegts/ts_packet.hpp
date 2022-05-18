@@ -69,7 +69,7 @@ public:
 
     void decode(SimpleBuffer &rSb);
 
-    void print();
+    std::string print();
 
     uint8_t mTableId;                       // 8 bits
     uint8_t mSectionSyntaxIndicator;       // 1 bit
@@ -98,7 +98,7 @@ public:
 
     uint16_t size();
 
-    void print();
+    std::string print();
 
     uint8_t mStreamType;                    // 8 bits
     uint8_t mReserved0;                      // 3 bits
@@ -120,7 +120,7 @@ public:
 
     uint16_t size();
 
-    void print();
+    std::string print();
 
     uint8_t mTableId;                       // 8 bits
     uint8_t mSectionSyntaxIndicator;       // 1 bit

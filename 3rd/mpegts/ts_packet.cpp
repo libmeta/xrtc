@@ -1,23 +1,34 @@
 #include "ts_packet.hpp"
 #include "simple_buffer.hpp"
 
-#include <iostream>
+#include <sstream>
 
 EsFrame::EsFrame()
-        : mCompleted(false), mPid(0), mExpectedPesPacketLength(0) {
+    : mCompleted(false)
+    , mPid(0)
+    , mExpectedPesPacketLength(0)
+{
     mData.reset(new SimpleBuffer);
 }
 
 EsFrame::EsFrame(uint8_t lSt)
-        : mStreamType(lSt), mCompleted(false), mBroken(false), mPid(0), mExpectedPesPacketLength(0), mExpectedPayloadLength(0) {
+    : mStreamType(lSt)
+    , mCompleted(false)
+    , mBroken(false)
+    , mPid(0)
+    , mExpectedPesPacketLength(0)
+    , mExpectedPayloadLength(0)
+{
     mData.reset(new SimpleBuffer);
 }
 
-bool EsFrame::empty() {
+bool EsFrame::empty()
+{
     return mData->size() == 0;
 }
 
-void EsFrame::reset() {
+void EsFrame::reset()
+{
     mPid = 0;
     mCompleted = false;
     mBroken = false;
@@ -27,14 +38,23 @@ void EsFrame::reset() {
 }
 
 TsHeader::TsHeader()
-        : mSyncByte(0x47), mTransportErrorIndicator(0), mPayloadUnitStartIndicator(0), mTransportPriority(0), mPid(0),
-          mTransportScramblingControl(0), mAdaptationFieldControl(0), mContinuityCounter(0) {
+    : mSyncByte(0x47)
+    , mTransportErrorIndicator(0)
+    , mPayloadUnitStartIndicator(0)
+    , mTransportPriority(0)
+    , mPid(0)
+    , mTransportScramblingControl(0)
+    , mAdaptationFieldControl(0)
+    , mContinuityCounter(0)
+{
 }
 
-TsHeader::~TsHeader() {
+TsHeader::~TsHeader()
+{
 }
 
-void TsHeader::encode(SimpleBuffer &rSb) {
+void TsHeader::encode(SimpleBuffer& rSb)
+{
     rSb.write1Byte(mSyncByte);
 
     uint16_t lB1b2 = mPid & 0x1FFF;
@@ -49,7 +69,8 @@ void TsHeader::encode(SimpleBuffer &rSb) {
     rSb.write1Byte(lB3);
 }
 
-void TsHeader::decode(SimpleBuffer &rSb) {
+void TsHeader::decode(SimpleBuffer& rSb)
+{
     mSyncByte = rSb.read1Byte();
 
     uint16_t lB1b2 = rSb.read2Bytes();
@@ -65,16 +86,26 @@ void TsHeader::decode(SimpleBuffer &rSb) {
 }
 
 PATHeader::PATHeader()
-        : mTableId(0), mSectionSyntaxIndicator(0), mB0(0), mReserved0(0), mSectionLength(0), mTransportStreamId(0),
-          mReserved1(0), mVersionNumber(0), mCurrentNextIndicator(0), mSectionNumber(0), mLastSectionNumber(0) {
-
+    : mTableId(0)
+    , mSectionSyntaxIndicator(0)
+    , mB0(0)
+    , mReserved0(0)
+    , mSectionLength(0)
+    , mTransportStreamId(0)
+    , mReserved1(0)
+    , mVersionNumber(0)
+    , mCurrentNextIndicator(0)
+    , mSectionNumber(0)
+    , mLastSectionNumber(0)
+{
 }
 
-PATHeader::~PATHeader() {
-
+PATHeader::~PATHeader()
+{
 }
 
-void PATHeader::encode(SimpleBuffer &rSb) {
+void PATHeader::encode(SimpleBuffer& rSb)
+{
     rSb.write1Byte(mTableId);
 
     uint16_t lB1b2 = mSectionLength & 0x0FFF;
@@ -94,7 +125,8 @@ void PATHeader::encode(SimpleBuffer &rSb) {
     rSb.write1Byte(mLastSectionNumber);
 }
 
-void PATHeader::decode(SimpleBuffer &rSb) {
+void PATHeader::decode(SimpleBuffer& rSb)
+{
     mTableId = rSb.read1Byte();
 
     uint16_t lB1b2 = rSb.read2Bytes();
@@ -114,38 +146,47 @@ void PATHeader::decode(SimpleBuffer &rSb) {
     mLastSectionNumber = rSb.read1Byte();
 }
 
-void PATHeader::print() {
-    std::cout << "----------PAT information----------" << std::endl;
-    std::cout << "table_id: " << std::to_string(mTableId) << std::endl;
-    std::cout << "section_syntax_indicator: " << std::to_string(mSectionSyntaxIndicator) << std::endl;
-    std::cout << "b0: " << std::to_string(mB0) << std::endl;
-    std::cout << "reserved0: " << std::to_string(mReserved0) << std::endl;
-    std::cout << "section_length: " << std::to_string(mSectionLength) << std::endl;
-    std::cout << "transport_stream_id: " << std::to_string(mTransportStreamId) << std::endl;
-    std::cout << "reserved1: " << std::to_string(mReserved1) << std::endl;
-    std::cout << "version_number: " << std::to_string(mVersionNumber) << std::endl;
-    std::cout << "current_next_indicator: " << std::to_string(mCurrentNextIndicator) << std::endl;
-    std::cout << "section_number: " << std::to_string(mSectionNumber) << std::endl;
-    std::cout << "last_section_number: " << std::to_string(mLastSectionNumber) << std::endl;
-    std::cout << std::endl;
-    std::flush(std::cout);
+std::string PATHeader::print()
+{
+    std::stringstream ss;
+    ss << "----------PAT information----------"
+       << "\n";
+    ss << "table_id: " << std::to_string(mTableId) << "\n";
+    ss << "section_syntax_indicator: " << std::to_string(mSectionSyntaxIndicator) << "\n";
+    ss << "b0: " << std::to_string(mB0) << "\n";
+    ss << "reserved0: " << std::to_string(mReserved0) << "\n";
+    ss << "section_length: " << std::to_string(mSectionLength) << "\n";
+    ss << "transport_stream_id: " << std::to_string(mTransportStreamId) << "\n";
+    ss << "reserved1: " << std::to_string(mReserved1) << "\n";
+    ss << "version_number: " << std::to_string(mVersionNumber) << "\n";
+    ss << "current_next_indicator: " << std::to_string(mCurrentNextIndicator) << "\n";
+    ss << "section_number: " << std::to_string(mSectionNumber) << "\n";
+    ss << "last_section_number: " << std::to_string(mLastSectionNumber) << "\n";
+    ss << "\n";
+
+    return ss.str();
 }
 
 PMTElementInfo::PMTElementInfo(uint8_t lSt, uint16_t lPid)
-        : mStreamType(lSt), mReserved0(0x7), mElementaryPid(lPid), mReserved1(0xf), mEsInfoLength(0) {
-
+    : mStreamType(lSt)
+    , mReserved0(0x7)
+    , mElementaryPid(lPid)
+    , mReserved1(0xf)
+    , mEsInfoLength(0)
+{
 }
 
 PMTElementInfo::PMTElementInfo()
-        : PMTElementInfo(0, 0) {
-
+    : PMTElementInfo(0, 0)
+{
 }
 
-PMTElementInfo::~PMTElementInfo() {
-
+PMTElementInfo::~PMTElementInfo()
+{
 }
 
-void PMTElementInfo::encode(SimpleBuffer &rSb) {
+void PMTElementInfo::encode(SimpleBuffer& rSb)
+{
     rSb.write1Byte(mStreamType);
 
     uint16_t lB1b2 = mElementaryPid & 0x1FFF;
@@ -161,7 +202,8 @@ void PMTElementInfo::encode(SimpleBuffer &rSb) {
     }
 }
 
-void PMTElementInfo::decode(SimpleBuffer &rSb) {
+void PMTElementInfo::decode(SimpleBuffer& rSb)
+{
     mStreamType = rSb.read1Byte();
 
     uint16_t lB1b2 = rSb.read2Bytes();
@@ -177,33 +219,52 @@ void PMTElementInfo::decode(SimpleBuffer &rSb) {
     }
 }
 
-uint16_t PMTElementInfo::size() {
+uint16_t PMTElementInfo::size()
+{
     return 5 + mEsInfoLength;
 }
 
-void PMTElementInfo::print() {
-    std::cout << "**********PMTElement information**********" << std::endl;
-    std::cout << "stream_type: " << std::to_string(mStreamType) << std::endl;
-    std::cout << "reserved0: " << std::to_string(mReserved0) << std::endl;
-    std::cout << "elementary_PID: " << std::to_string(mElementaryPid) << std::endl;
-    std::cout << "reserved1: " << std::to_string(mReserved1) << std::endl;
-    std::cout << "ES_info_length: " << std::to_string(mEsInfoLength) << std::endl;
-    std::cout << "ES_info: " << mEsInfo << std::endl;
-    std::flush(std::cout);
+std::string PMTElementInfo::print()
+{
+    std::stringstream ss;
+
+    ss << "**********PMTElement information**********"
+       << "\n";
+    ss << "stream_type: " << std::to_string(mStreamType) << "\n";
+    ss << "reserved0: " << std::to_string(mReserved0) << "\n";
+    ss << "elementary_PID: " << std::to_string(mElementaryPid) << "\n";
+    ss << "reserved1: " << std::to_string(mReserved1) << "\n";
+    ss << "ES_info_length: " << std::to_string(mEsInfoLength) << "\n";
+    ss << "ES_info: " << mEsInfo << "\n";
+
+    return ss.str();
 }
 
 PMTHeader::PMTHeader()
-        : mTableId(0x02), mSectionSyntaxIndicator(0), mB0(0), mReserved0(0), mSectionLength(0), mProgramNumber(0),
-          mReserved1(0), mVersionNumber(0), mCurrentNextIndicator(0), mSectionNumber(0), mLastSectionNumber(0),
-          mReserved2(0), mPcrPid(0), mReserved3(0), mProgramInfoLength(0) {
-
+    : mTableId(0x02)
+    , mSectionSyntaxIndicator(0)
+    , mB0(0)
+    , mReserved0(0)
+    , mSectionLength(0)
+    , mProgramNumber(0)
+    , mReserved1(0)
+    , mVersionNumber(0)
+    , mCurrentNextIndicator(0)
+    , mSectionNumber(0)
+    , mLastSectionNumber(0)
+    , mReserved2(0)
+    , mPcrPid(0)
+    , mReserved3(0)
+    , mProgramInfoLength(0)
+{
 }
 
-PMTHeader::~PMTHeader() {
-
+PMTHeader::~PMTHeader()
+{
 }
 
-void PMTHeader::encode(SimpleBuffer &rSb) {
+void PMTHeader::encode(SimpleBuffer& rSb)
+{
     rSb.write1Byte(mTableId);
 
     uint16_t lB1b2 = mSectionLength & 0xFFFF;
@@ -230,12 +291,13 @@ void PMTHeader::encode(SimpleBuffer &rSb) {
     lB10b11 |= (mReserved3 << 12) & 0xF000;
     rSb.write2Bytes(lB10b11);
 
-    for (int lI = 0; lI < (int) mInfos.size(); lI++) {
+    for (int lI = 0; lI < (int)mInfos.size(); lI++) {
         mInfos[lI]->encode(rSb);
     }
 }
 
-void PMTHeader::decode(SimpleBuffer &rSb) {
+void PMTHeader::decode(SimpleBuffer& rSb)
+{
     mTableId = rSb.read1Byte();
 
     uint16_t lB1b2 = rSb.read2Bytes();
@@ -275,51 +337,62 @@ void PMTHeader::decode(SimpleBuffer &rSb) {
     }
 }
 
-uint16_t PMTHeader::size() {
+uint16_t PMTHeader::size()
+{
     uint16_t lRet = 12;
-    for (int lI = 0; lI < (int) mInfos.size(); lI++) {
+    for (int lI = 0; lI < (int)mInfos.size(); lI++) {
         lRet += mInfos[lI]->size();
     }
 
     return lRet;
 }
 
-void PMTHeader::print() {
-    std::cout << "----------PMT information----------" << std::endl;
-    std::cout << "table_id: " << std::to_string(mTableId) << std::endl;
-    std::cout << "section_syntax_indicator: " << std::to_string(mSectionSyntaxIndicator) << std::endl;
-    std::cout << "b0: " << std::to_string(mB0) << std::endl;
-    std::cout << "reserved0: " << std::to_string(mReserved0) << std::endl;
-    std::cout << "section_length: " << std::to_string(mSectionLength) << std::endl;
-    std::cout << "program_number: " << std::to_string(mProgramNumber) << std::endl;
-    std::cout << "reserved1: " << std::to_string(mReserved1) << std::endl;
-    std::cout << "version_number: " << std::to_string(mVersionNumber) << std::endl;
-    std::cout << "current_next_indicator: " << std::to_string(mCurrentNextIndicator) << std::endl;
-    std::cout << "section_number: " << std::to_string(mSectionNumber) << std::endl;
-    std::cout << "last_section_number: " << std::to_string(mLastSectionNumber) << std::endl;
-    std::cout << "reserved2: " << std::to_string(mReserved2) << std::endl;
-    std::cout << "PCR_PID: " << std::to_string(mPcrPid) << std::endl;
-    std::cout << "reserved3: " << std::to_string(mReserved3) << std::endl;
-    std::cout << "program_info_length: " << std::to_string(mProgramInfoLength) << std::endl;
-    for (int lI = 0; lI < (int) mInfos.size(); lI++) {
+std::string PMTHeader::print()
+{
+    std::stringstream ss;
+    ss << "----------PMT information----------"
+       << "\n";
+    ss << "table_id: " << std::to_string(mTableId) << "\n";
+    ss << "section_syntax_indicator: " << std::to_string(mSectionSyntaxIndicator) << "\n";
+    ss << "b0: " << std::to_string(mB0) << "\n";
+    ss << "reserved0: " << std::to_string(mReserved0) << "\n";
+    ss << "section_length: " << std::to_string(mSectionLength) << "\n";
+    ss << "program_number: " << std::to_string(mProgramNumber) << "\n";
+    ss << "reserved1: " << std::to_string(mReserved1) << "\n";
+    ss << "version_number: " << std::to_string(mVersionNumber) << "\n";
+    ss << "current_next_indicator: " << std::to_string(mCurrentNextIndicator) << "\n";
+    ss << "section_number: " << std::to_string(mSectionNumber) << "\n";
+    ss << "last_section_number: " << std::to_string(mLastSectionNumber) << "\n";
+    ss << "reserved2: " << std::to_string(mReserved2) << "\n";
+    ss << "PCR_PID: " << std::to_string(mPcrPid) << "\n";
+    ss << "reserved3: " << std::to_string(mReserved3) << "\n";
+    ss << "program_info_length: " << std::to_string(mProgramInfoLength) << "\n";
+    for (int lI = 0; lI < (int)mInfos.size(); lI++) {
         mInfos[lI]->print();
     }
-    std::cout << std::endl;
+    ss << "\n";
     std::flush(std::cout);
 }
 
 AdaptationFieldHeader::AdaptationFieldHeader()
-        : mAdaptationFieldLength(0), mAdaptationFieldExtensionFlag(0), mTransportPrivateDataFlag(0),
-          mSplicingPointFlag(0), mOpcrFlag(0), mPcrFlag(0), mElementaryStreamPriorityIndicator(0),
-          mRandomAccessIndicator(0), mDiscontinuityIndicator(0) {
-
+    : mAdaptationFieldLength(0)
+    , mAdaptationFieldExtensionFlag(0)
+    , mTransportPrivateDataFlag(0)
+    , mSplicingPointFlag(0)
+    , mOpcrFlag(0)
+    , mPcrFlag(0)
+    , mElementaryStreamPriorityIndicator(0)
+    , mRandomAccessIndicator(0)
+    , mDiscontinuityIndicator(0)
+{
 }
 
-AdaptationFieldHeader::~AdaptationFieldHeader() {
-
+AdaptationFieldHeader::~AdaptationFieldHeader()
+{
 }
 
-void AdaptationFieldHeader::encode(SimpleBuffer &rSb) {
+void AdaptationFieldHeader::encode(SimpleBuffer& rSb)
+{
     rSb.write1Byte(mAdaptationFieldLength);
     if (mAdaptationFieldLength != 0) {
         uint8_t lVal = mAdaptationFieldExtensionFlag & 0x01;
@@ -334,7 +407,8 @@ void AdaptationFieldHeader::encode(SimpleBuffer &rSb) {
     }
 }
 
-void AdaptationFieldHeader::decode(SimpleBuffer &rSb) {
+void AdaptationFieldHeader::decode(SimpleBuffer& rSb)
+{
     mAdaptationFieldLength = rSb.read1Byte();
     if (mAdaptationFieldLength != 0) {
         uint8_t lVal = rSb.read1Byte();
@@ -350,18 +424,32 @@ void AdaptationFieldHeader::decode(SimpleBuffer &rSb) {
 }
 
 PESHeader::PESHeader()
-        : mPacketStartCode(0x000001), mStreamId(0), mPesPacketLength(0), mOriginalOrCopy(0), mCopyright(0),
-          mDataAlignmentIndicator(0), mPesPriority(0), mPesScramblingControl(0), mMarkerBits(0x02), mPesExtFlag(0),
-          mPesCrcFlag(0), mAddCopyInfoFlag(0), mDsmTrickModeFlag(0), mEsRateFlag(0), mEscrFlag(0), mPtsDtsFlags(0),
-          mHeaderDataLength(0) {
-
+    : mPacketStartCode(0x000001)
+    , mStreamId(0)
+    , mPesPacketLength(0)
+    , mOriginalOrCopy(0)
+    , mCopyright(0)
+    , mDataAlignmentIndicator(0)
+    , mPesPriority(0)
+    , mPesScramblingControl(0)
+    , mMarkerBits(0x02)
+    , mPesExtFlag(0)
+    , mPesCrcFlag(0)
+    , mAddCopyInfoFlag(0)
+    , mDsmTrickModeFlag(0)
+    , mEsRateFlag(0)
+    , mEscrFlag(0)
+    , mPtsDtsFlags(0)
+    , mHeaderDataLength(0)
+{
 }
 
-PESHeader::~PESHeader() {
-
+PESHeader::~PESHeader()
+{
 }
 
-void PESHeader::encode(SimpleBuffer &rSb) {
+void PESHeader::encode(SimpleBuffer& rSb)
+{
     uint32_t lB0b1b2b3 = (mPacketStartCode << 8) & 0xFFFFFF00;
     lB0b1b2b3 |= mStreamId & 0xFF;
     rSb.write4Bytes(lB0b1b2b3);
@@ -388,10 +476,11 @@ void PESHeader::encode(SimpleBuffer &rSb) {
     rSb.write1Byte(mHeaderDataLength);
 }
 
-void PESHeader::decode(SimpleBuffer &rSb) {
+void PESHeader::decode(SimpleBuffer& rSb)
+{
     uint32_t lB0b1b2b3 = rSb.read4Bytes();
     mPacketStartCode = (lB0b1b2b3 >> 8) & 0x00FFFFFF;
-    mStreamId = (lB0b1b2b3) & 0xFF;
+    mStreamId = (lB0b1b2b3)&0xFF;
 
     mPesPacketLength = rSb.read2Bytes();
 
