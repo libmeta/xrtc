@@ -48,7 +48,7 @@ public:
     // Fill this class with all information you need for the duration of the connection both client and server
     class NetworkConnection {
     public:
-        std::any mObject;
+        std::any object_;
     };
 
     SRTNet();

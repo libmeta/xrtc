@@ -51,7 +51,7 @@ validateConnection(struct sockaddr& rSin, SRTSOCKET lNewSocket, std::shared_ptr<
 {
 
     if (rpCtx != nullptr) {
-        auto lConnCls = std::any_cast<std::shared_ptr<ConnectionClass>&>(rpCtx->mObject);
+        auto lConnCls = std::any_cast<std::shared_ptr<ConnectionClass>&>(rpCtx->object_);
         if (lConnCls->mSomeNumber != 111) {
             return nullptr;
         }
@@ -83,7 +83,7 @@ validateConnection(struct sockaddr& rSin, SRTSOCKET lNewSocket, std::shared_ptr<
     }
 
     auto lNetConn = std::make_shared<SRTNet::NetworkConnection>();
-    lNetConn->mObject = std::make_shared<MyClass>(lNewSocket);
+    lNetConn->object_ = std::make_shared<MyClass>(lNewSocket);
     return lNetConn;
 }
 
@@ -92,7 +92,7 @@ bool handleData(std::unique_ptr<std::vector<uint8_t>>& rContent, SRT_MSGCTRL& rM
     SRTSOCKET lClientHandle)
 {
     // Try catch?
-    auto lpMyClass = std::any_cast<std::shared_ptr<MyClass>&>(rpCtx->mObject);
+    auto lpMyClass = std::any_cast<std::shared_ptr<MyClass>&>(rpCtx->object_);
 
     if (!lpMyClass->mIsKnown) { // just a example/test. This connection is unknown. See what connection it is and set the test-parameter accordingly
         if (rContent->data()[0] == 1) {
@@ -135,7 +135,7 @@ void handleDataClient(std::unique_ptr<std::vector<uint8_t>>& rContent, SRT_MSGCT
 
     xlogi("Got data -> {}", rContent->size());
     // Try catch?
-    auto lpMyClass = std::any_cast<std::shared_ptr<MyClass>&>(rpCtx->mObject);
+    auto lpMyClass = std::any_cast<std::shared_ptr<MyClass>&>(rpCtx->object_);
 
     int lPacketSize = rContent->size();
     if (lpMyClass->mTest == 1) {
@@ -172,7 +172,7 @@ int test_srt_net_main()
 
     // Create a optional connection context
     auto lConn1 = std::make_shared<SRTNet::NetworkConnection>();
-    lConn1->mObject = std::make_shared<ConnectionClass>();
+    lConn1->object_ = std::make_shared<ConnectionClass>();
 
     /*Start the server
      * ip: bind to this ip (can be IPv4 or IPv6)
@@ -192,7 +192,7 @@ int test_srt_net_main()
     auto lClient1Connection = std::make_shared<SRTNet::NetworkConnection>();
     std::shared_ptr<MyClass> lpMyClass1 = std::make_shared<MyClass>(0);
     lpMyClass1->mTest = 1;
-    lClient1Connection->mObject = std::move(lpMyClass1);
+    lClient1Connection->object_ = std::move(lpMyClass1);
 
     gSRTNetClient1.receivedData = std::bind(&handleDataClient, std::placeholders::_1, std::placeholders::_2,
         std::placeholders::_3, std::placeholders::_4);
@@ -205,7 +205,7 @@ int test_srt_net_main()
     auto lClient2Connection = std::make_shared<SRTNet::NetworkConnection>();
     std::shared_ptr<MyClass> lpMyClass2 = std::make_shared<MyClass>(0);
     lpMyClass2->mTest = 2;
-    lClient2Connection->mObject = std::move(lpMyClass2);
+    lClient2Connection->object_ = std::move(lpMyClass2);
     gSRTNetClient2.receivedData = std::bind(&handleDataClient, std::placeholders::_1, std::placeholders::_2,
         std::placeholders::_3, std::placeholders::_4);
     if (!gSRTNetClient2.startClient("127.0.0.1", 8000, 16, 1000, 100, lClient2Connection, 1456,
