@@ -28,23 +28,22 @@
 
 namespace xrtc {
 
-constexpr int MAX_WORKERS = 20; // Max number of connections to deal with each epoll
-
 namespace SRTNetClearStats {
-enum SRTNetClearStats : int {
-    no,
-    yes
-};
+    enum SRTNetClearStats : int {
+        no,
+        yes
+    };
 }
 
 namespace SRTNetInstant {
-enum SRTNetInstant : int {
-    no,
-    yes
-};
+    enum SRTNetInstant : int {
+        no,
+        yes
+    };
 }
 
 class SRTNet {
+    static const int MAX_WORKERS = 20; // Max number of connections to deal with each epoll
 public:
     // Fill this class with all information you need for the duration of the connection both client and server
     class NetworkConnection {
@@ -185,21 +184,21 @@ private:
     static bool isIPv6(const std::string& str);
 
     // Server active? true == yes
-    std::atomic<bool> mServerActive = { false };
+    std::atomic<bool> server_active_ = { false };
     // Client active? true == yes
-    std::atomic<bool> mClientActive = { false };
+    std::atomic<bool> client_active_ = { false };
 
-    std::thread mWorkerThread;
-    std::thread mEventThread;
+    std::thread worker_thread_;
+    std::thread event_thread_;
 
-    SRTSOCKET mContext = 0;
-    int mPollID = 0;
-    std::mutex mNetMtx;
-    Mode mCurrentMode = Mode::unknown;
-    std::map<SRTSOCKET, std::shared_ptr<NetworkConnection>> mClientList = {};
-    std::mutex mClientListMtx;
-    std::shared_ptr<NetworkConnection> mClientContext = nullptr;
-    std::shared_ptr<NetworkConnection> mConnectionContext = nullptr;
+    SRTSOCKET context_ = 0;
+    int poll_id_ = 0;
+    std::mutex net_mtx_;
+    Mode current_mode_ = Mode::unknown;
+    std::map<SRTSOCKET, std::shared_ptr<NetworkConnection>> client_list_ = {};
+    std::mutex client_list_mtx_;
+    std::shared_ptr<NetworkConnection> client_context_ = nullptr;
+    std::shared_ptr<NetworkConnection> connection_context_ = nullptr;
 };
 
 }
