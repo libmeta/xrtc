@@ -5,7 +5,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(xrtc STATIC)
 target_compile_options(xrtc PRIVATE -std=c++17)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(xrtc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(InitSystemName)
